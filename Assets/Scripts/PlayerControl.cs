@@ -6,9 +6,11 @@ using UnityEngine.InputSystem;
 
 public class PlayerControl : MonoBehaviour
 {
-    public float moveForce = 20f;
-    public float turnSpeed = 60f;
-    public float jumpForce = 50f;
+    public float moveSpeed = 10f;
+    public float turnSpeed = 90f;
+    /* FIXME jumpDistance is not working as intended */
+    public float jumpDistance = 0.04f;
+    public float gravity = 0.08f;
 
     /* 
      * InputSystem: https://youtu.be/HmXU4dZbaMw
@@ -19,23 +21,21 @@ public class PlayerControl : MonoBehaviour
 
     public GameObject cameralFocal;
     public GameObject virtualCamera;
-    Rigidbody rb;
+    CharacterController controller;
 
-    /* https://discussions.unity.com/t/how-do-i-check-if-my-rigidbody-player-is-grounded/33250/11 */
-    bool isOnGround;
+    float yVelocity = 0f;
 
-    private void OnCollisionEnter(Collision collision)
+    private static Vector2 Rotate(Vector2 v, float delta)
     {
-        // NOTE consider downward facing collision as "touching ground" is this correct?
-        if (!isOnGround)
-        {
-            isOnGround = (from contact in collision.contacts select contact.normal.y).Any(y => y > 0f);
-        }
+        return new Vector2(
+            v.x * Mathf.Cos(delta) - v.y * Mathf.Sin(delta),
+            v.x * Mathf.Sin(delta) + v.y * Mathf.Cos(delta)
+        );
     }
 
     private void Awake()
     {
-
+        controller = GetComponent<CharacterController>();
     }
 
     private void OnEnable()
@@ -50,23 +50,20 @@ public class PlayerControl : MonoBehaviour
 
     private void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        
     }
 
     private void Update()
     {
-        cameralFocal.transform.Rotate(Vector3.up * Time.deltaTime * lookDirection.x * turnSpeed);
-    }
-
-    private void FixedUpdate()
-    {
-        if (moveDirection.sqrMagnitude > 0.0625f)
+        cameralFocal.transform.Rotate(Vector3.up * lookDirection.x * turnSpeed * Time.deltaTime);
+        float cameraYaw = -virtualCamera.transform.rotation.y * Mathf.PI;
+        Vector2 alignedMovement = Rotate(moveDirection, cameraYaw) * moveSpeed * Time.deltaTime;
+        Debug.Log(alignedMovement);
+        if (!controller.isGrounded)
         {
-            /* FIXME jittering when moving while camera rotating */
-            float cameraYaw = virtualCamera.transform.rotation.y * 180;
-            Vector3 transformedMove = (Quaternion.Euler(0, cameraYaw, 0) * new Vector3(moveDirection.x, 0, moveDirection.y)).normalized;
-            rb.AddRelativeForce(transformedMove * moveForce);
+            yVelocity -= gravity * Time.deltaTime;
         }
+        controller.Move(new Vector3(alignedMovement.x, yVelocity, alignedMovement.y));
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -79,14 +76,15 @@ public class PlayerControl : MonoBehaviour
         lookDirection = context.ReadValue<Vector2>();
     }
 
-    /* https://gamedevbeginner.com/how-to-jump-in-unity-with-or-without-physics/ */
     public void OnJump(InputAction.CallbackContext context)
     {
-        if (isOnGround)
+        /* TODO jumping via CharacterControlUtilities.StandardJump (requires KinematicCharacterBody?)
+         * https://docs.unity3d.com/Packages/com.unity.charactercontroller@1.0/manual/jumping.html
+         */
+        /* https://forum.unity.com/threads/player-input-component-triggering-events-multiple-times.851959/ */
+        if (controller.isGrounded && context.performed)
         {
-            /* TODO consider OnCollisionExit */
-            isOnGround = false;
-            rb.AddForce(Vector3.up * jumpForce);
+            yVelocity = jumpDistance;
         }
     }
 }
