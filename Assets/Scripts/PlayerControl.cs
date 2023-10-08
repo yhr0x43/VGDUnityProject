@@ -8,7 +8,7 @@ public class PlayerControl : MonoBehaviour
 {
     public float moveSpeed = 10f;
     public float turnSpeed = 90f;
-    /* FIXME jumpDistance is not working as intended */
+    // FIXME jumpDistance is not working as intended
     public float jumpDistance = 0.04f;
     public float gravity = 0.08f;
 
@@ -35,37 +35,62 @@ public class PlayerControl : MonoBehaviour
         );
     }
 
-    private void Awake()
+    void Awake()
     {
-        controller = GetComponent<CharacterController>();
         stateManager = GetComponent<PlayerStateManager>();
     }
 
-    private void OnEnable()
+    void OnEnable()
     {
 
     }
 
-    private void OnDisable()
+    void OnDisable()
     {
 
     }
 
-    private void Start()
+    void Start()
     {
-        
+        controller = GetComponent<CharacterController>();
     }
 
     private void Update()
     {
-        cameralFocal.transform.Rotate(Vector3.up * lookDirection.x * turnSpeed * Time.deltaTime);
-        float cameraYaw = -virtualCamera.transform.rotation.y * Mathf.PI;
-        Vector2 alignedMovement = Rotate(moveDirection, cameraYaw) * moveSpeed * Time.deltaTime;
+        Vector3 movement = Vector3.zero;
+        switch (stateManager.state)
+        {
+            case PlayerState.Freemove:
+                {
+                    cameralFocal.transform.Rotate(Vector3.up * lookDirection.x * turnSpeed * Time.deltaTime);
+                    float cameraYaw = -virtualCamera.transform.rotation.y * Mathf.PI;
+                    Vector2 alignedMovement = Rotate(moveDirection, cameraYaw) * moveSpeed * Time.deltaTime;
+                    movement.x = alignedMovement.x;
+                    movement.z = alignedMovement.y;
+                    break;
+                }
+            case PlayerState.Jumping:
+                {
+                    cameralFocal.transform.Rotate(Vector3.up * lookDirection.x * turnSpeed * Time.deltaTime);
+                    float cameraYaw = -virtualCamera.transform.rotation.y * Mathf.PI;
+                    Vector2 alignedMovement = Rotate(moveDirection, cameraYaw) * moveSpeed * Time.deltaTime / 2;
+                    movement.x = alignedMovement.x;
+                    movement.z = alignedMovement.y;
+                    break;
+                }
+            case PlayerState.Ropewalk:
+            {
+                // TODO
+                break;
+            }
+            default: break;
+        }
         if (!controller.isGrounded)
         {
             yVelocity -= gravity * Time.deltaTime;
         }
-        controller.Move(new Vector3(alignedMovement.x, yVelocity, alignedMovement.y));
+        movement.y = yVelocity;
+        controller.Move(movement);
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -80,12 +105,11 @@ public class PlayerControl : MonoBehaviour
 
     public void OnJump(InputAction.CallbackContext context)
     {
-        /* explain context.performed https://forum.unity.com/threads/player-input-component-triggering-events-multiple-times.851959/ */
+        // explain context.performed https://forum.unity.com/threads/player-input-component-triggering-events-multiple-times.851959/
         if (!context.performed) return;
 
-        /* TODO jumping via CharacterControlUtilities.StandardJump (requires KinematicCharacterBody?)
-         * https://docs.unity3d.com/Packages/com.unity.charactercontroller@1.0/manual/jumping.html
-         */
+        // TODO jumping via CharacterControlUtilities.StandardJump (requires KinematicCharacterBody?)
+        // https://docs.unity3d.com/Packages/com.unity.charactercontroller@1.0/manual/jumping.html
         if (controller.isGrounded)
         {
             yVelocity = jumpDistance;
