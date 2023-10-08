@@ -23,8 +23,6 @@ public class PlayerControl : MonoBehaviour
     CharacterController controller;
     PlayerStateManager stateManager;
 
-    public GameObject startObject, endObject;
-
     float yVelocity = 0f;
 
     private static Vector2 Rotate(Vector2 v, float delta)
@@ -55,7 +53,7 @@ public class PlayerControl : MonoBehaviour
         controller = GetComponent<CharacterController>();
     }
 
-    private void Update()
+    void Update()
     {
         Vector3 movement = Vector3.zero;
         switch (stateManager.state)
@@ -119,49 +117,31 @@ public class PlayerControl : MonoBehaviour
     public void OnInteract(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
-        
-        Vector3[] lineIndexes;
-        float distanceFromIndex, shortestDistance = 10000;
-        Vector3 newPlayerPos = Vector3.zero;
 
-
-        RaycastHit hit;
-        // if the player and the startObject are within light of sight of each other
-        if (Physics.Raycast(transform.position, startObject.transform.position - transform.position, out hit, Vector3.Magnitude(startObject.transform.position - transform.position)))
+        switch (stateManager.interact)
         {
-            Debug.Log(hit.collider.gameObject);
-
-            // get the number of line indexes created from line renderer
-            lineIndexes = new Vector3[startObject.GetComponent<LineRenderer>().positionCount];
-
-            // put all line indexes in a vector3 array
-            startObject.GetComponent<LineRenderer>().GetPositions(lineIndexes);
-
-            // find closet lineIndex to the player, and attach player to that lineIndex
-            for (int i = 0; i < lineIndexes.Length - 1; i++)
-            {
-                // find the closet lineIndex to the player
-                distanceFromIndex = Vector3.Distance(lineIndexes[i], transform.position);
-
-                //Debug.Log(distanceFromIndex);
-                // determine if the latest player/lineIndex distance is shorter than the previous one
-                if (distanceFromIndex < shortestDistance)
+            case InteractAction.AttachRope:
                 {
-                    newPlayerPos = lineIndexes[i];
-                    shortestDistance = distanceFromIndex;
-                }
-                //Debug.Log(lineIndexes[i]);
-            }
+                    Debug.Log("Attaching to Rope");
+                    GameObject startObject = stateManager.collidingRope;
 
-            Debug.Log(newPlayerPos);
-            // update the player's transform to the nearest lineIndex
-            controller.enabled = false;
-            transform.position = newPlayerPos;
-            controller.enabled = true;
-        }
-        else
-        {
-            Debug.Log("Did not Hit");
+                    LineRenderer lineRenderer = startObject.GetComponent<LineRenderer>();
+                    Vector3[] lineIndexes = new Vector3[lineRenderer.positionCount];
+                    lineRenderer.GetPositions(lineIndexes);
+                    Vector3 newPlayerPos = new List<Vector3>(lineIndexes).OrderBy(point => Vector3.Distance(point, transform.position)).First();
+
+                    RaycastHit hit;
+                    if (Physics.Raycast(transform.position, newPlayerPos - transform.position, out hit, Vector3.Magnitude(newPlayerPos - transform.position)))
+                        break;
+
+                    Debug.Log(newPlayerPos);
+
+                    // https://forum.unity.com/threads/does-transform-position-work-on-a-charactercontroller.36149/#post-4132021
+                    controller.enabled = false;
+                    transform.position = newPlayerPos;
+                    controller.enabled = true;
+                    break;
+                }
         }
     }
 }

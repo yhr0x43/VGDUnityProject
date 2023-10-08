@@ -14,13 +14,16 @@ public enum PlayerState
 public enum InteractAction
 {
     None,
-    AttachToRope,
+    AttachRope,
+    DetachRope
 }
 
 public class PlayerStateManager : MonoBehaviour
 {
     public PlayerState state = PlayerState.None;
     public InteractAction interact = InteractAction.None;
+
+    public GameObject collidingRope;
 
     private CharacterController controller;
 
@@ -37,7 +40,7 @@ public class PlayerStateManager : MonoBehaviour
         
     }
 
-    private void FixedUpdate()
+    void FixedUpdate()
     {
         if (PlayerState.Jumping == state && controller.isGrounded)
         {
@@ -50,5 +53,24 @@ public class PlayerStateManager : MonoBehaviour
     {
         if (!context.performed) return;
         state = PlayerState.Jumping;
+    }
+
+    void OnTriggerEnter(Collider collider)
+    {
+        GameObject other = collider.gameObject;
+        if (other.CompareTag("Rope"))
+        {
+            collidingRope = other;
+            interact = InteractAction.AttachRope;
+        }
+    }
+
+    void OnTriggerExit(Collider collider)
+    {
+        if (collider.gameObject == collidingRope)
+        {
+            collidingRope = null;
+            interact = InteractAction.None;
+        }
     }
 }
