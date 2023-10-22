@@ -21,7 +21,15 @@ public enum InteractAction
 public class PlayerStateManager : MonoBehaviour
 {
     public PlayerState state = PlayerState.None;
-    public InteractAction interact = InteractAction.None;
+    private InteractAction _interact = InteractAction.None;
+    public InteractAction interact
+    {
+        get => state switch
+        {
+            PlayerState.Ropewalk => InteractAction.DetachRope,
+            _ => _interact
+        };
+    }
 
     public GameObject collidingRope;
 
@@ -58,19 +66,19 @@ public class PlayerStateManager : MonoBehaviour
     void OnTriggerEnter(Collider collider)
     {
         GameObject other = collider.gameObject;
-        if (other.CompareTag("Rope"))
+        if (state == PlayerState.Freemove && other.CompareTag("Rope"))
         {
             collidingRope = other;
-            interact = InteractAction.AttachRope;
+            _interact = InteractAction.AttachRope;
         }
     }
 
     void OnTriggerExit(Collider collider)
     {
-        if (collider.gameObject == collidingRope)
+        if (state == PlayerState.Freemove && collider.gameObject == collidingRope)
         {
             collidingRope = null;
-            interact = InteractAction.None;
+            _interact = InteractAction.None;
         }
     }
 }

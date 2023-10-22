@@ -1,4 +1,4 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -22,6 +22,9 @@ public class PlayerControl : MonoBehaviour
     public GameObject cameralFocal, virtualCamera;
     CharacterController controller;
     PlayerStateManager stateManager;
+
+    Vector3[] lineIndexes;
+    int currentIndex, nextIndex, prevIndex;
 
     float yVelocity = 0f;
 
@@ -71,24 +74,92 @@ public class PlayerControl : MonoBehaviour
                 {
                     cameralFocal.transform.Rotate(Vector3.up * lookDirection.x * turnSpeed * Time.deltaTime);
                     float cameraYaw = -virtualCamera.transform.rotation.y * Mathf.PI;
-                    Vector2 alignedMovement = Rotate(moveDirection, cameraYaw) * moveSpeed * Time.deltaTime / 2;
+                    Vector2 alignedMovement = Rotate(moveDirection, cameraYaw) * moveSpeed * Time.deltaTime;
+                    alignedMovement /= 2;
                     movement.x = alignedMovement.x;
                     movement.z = alignedMovement.y;
                     break;
                 }
             case PlayerState.Ropewalk:
-            {
-                // TODO
-                break;
-            }
+                {
+                    float forwardInput = moveDirection.x;
+                    // while player is holding forward, move towards next vertice
+                    if (forwardInput > 0)
+                    {
+                        // move player to position of next index in lineRenderer
+                        transform.position = Vector3.MoveTowards(transform.position, lineIndexes[nextIndex], (moveSpeed * Time.deltaTime * forwardInput));
+                    }
+
+                    // while player is holding back, move towards previous vertice
+                    if (forwardInput < 0)
+                    {
+                        // move player to position of next index in lineRenderer
+                        transform.position = Vector3.MoveTowards(transform.position, lineIndexes[prevIndex], (moveSpeed * Time.deltaTime * -forwardInput));
+                    }
+
+                    // check if player is close enough to the nextIndex position
+                    if (Vector3.Distance(transform.position, lineIndexes[nextIndex]) < 0.001f)
+                    {
+                        // change currentIndex, nextIndex, and prevIndex
+                        currentIndex = nextIndex;
+
+                        // if theres more rope to travel on going forwards
+                        if (nextIndex < lineIndexes.Length - 1)
+                        {
+                            nextIndex = currentIndex + 1;
+                        }
+                        else
+                        {
+                            transform.position = Vector3.MoveTowards(transform.position, lineIndexes[prevIndex], (moveSpeed * Time.deltaTime * forwardInput));
+                        }
+                        // if theres more rope to travel on going backwards
+                        if (prevIndex > 0)
+                        {
+                            prevIndex = currentIndex - 1;
+                        }
+                        else
+                        {
+                            transform.position = Vector3.MoveTowards(transform.position, lineIndexes[nextIndex], (moveSpeed * Time.deltaTime * forwardInput));
+                        }
+                    }
+                    if (Vector3.Distance(transform.position, lineIndexes[prevIndex]) < 0.001f)
+                    {
+                        // change currentIndex, nextIndex, and prevIndex
+                        currentIndex = prevIndex;
+
+                        // if theres more rope to travel on going forwards
+                        if (nextIndex < lineIndexes.Length - 1)
+                        {
+                            nextIndex = currentIndex + 1;
+                        }
+                        else
+                        {
+                            transform.position = Vector3.MoveTowards(transform.position, lineIndexes[prevIndex], (moveSpeed * Time.deltaTime * forwardInput));
+                        }
+                        // if theres more rope to travel on going backwards
+                        if (prevIndex > 0)
+                        {
+                            prevIndex = currentIndex - 1;
+                        }
+                        else
+                        {
+                            transform.position = Vector3.MoveTowards(transform.position, lineIndexes[nextIndex], (moveSpeed * Time.deltaTime * forwardInput));
+                        }
+                    }
+                    // transform.LookAt(endObject.transform);
+                    break;
+                }
             default: break;
         }
-        if (!controller.isGrounded)
+        if (controller.enabled)
         {
-            yVelocity -= gravity * Time.deltaTime;
+            if (!controller.isGrounded)
+            {
+                yVelocity -= gravity * Time.deltaTime;
+            }
+            movement.y = yVelocity;
+            controller.Move(movement);
         }
-        movement.y = yVelocity;
-        controller.Move(movement);
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -122,10 +193,7 @@ public class PlayerControl : MonoBehaviour
         {
             case InteractAction.AttachRope:
                 {
-                    Debug.Log("Attaching to Rope");
-                    GameObject startObject = stateManager.collidingRope;
-
-                    LineRenderer lineRenderer = startObject.GetComponent<LineRenderer>();
+                    LineRenderer lineRenderer = stateManager.collidingRope.GetComponent<LineRenderer>();
                     Vector3[] lineIndexes = new Vector3[lineRenderer.positionCount];
                     lineRenderer.GetPositions(lineIndexes);
                     Vector3 newPlayerPos = new List<Vector3>(lineIndexes).OrderBy(point => Vector3.Distance(point, transform.position)).First();
@@ -134,11 +202,23 @@ public class PlayerControl : MonoBehaviour
                     if (Physics.Raycast(transform.position, newPlayerPos - transform.position, out hit, Vector3.Magnitude(newPlayerPos - transform.position)))
                         break;
 
-                    Debug.Log(newPlayerPos);
+                    currentIndex = Array.IndexOf(lineIndexes, newPlayerPos);
+                    prevIndex = currentIndex - 1;
+                    nextIndex = currentIndex + 1;
+
+                    this.lineIndexes = lineIndexes;
+
+                    stateManager.state = PlayerState.Ropewalk;
 
                     // https://forum.unity.com/threads/does-transform-position-work-on-a-charactercontroller.36149/#post-4132021
                     controller.enabled = false;
                     transform.position = newPlayerPos;
+                    break;
+                }
+            case InteractAction.DetachRope:
+                {
+                    stateManager.state = PlayerState.Freemove;
+                    lineIndexes = null;
                     controller.enabled = true;
                     break;
                 }
