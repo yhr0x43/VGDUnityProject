@@ -15,7 +15,8 @@ public enum InteractAction
 {
     None,
     AttachRope,
-    DetachRope
+    DetachRope,
+    LedgeWalk
 }
 
 public class PlayerStateManager : MonoBehaviour
@@ -31,7 +32,7 @@ public class PlayerStateManager : MonoBehaviour
         };
     }
 
-    public GameObject collidingRope;
+    public GameObject collidingObject;
 
     private CharacterController controller;
 
@@ -60,7 +61,8 @@ public class PlayerStateManager : MonoBehaviour
     public void OnJump(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
-        state = PlayerState.Jumping;
+        if (PlayerState.Freemove == state)
+            state = PlayerState.Jumping;
     }
 
     void OnTriggerEnter(Collider collider)
@@ -68,16 +70,22 @@ public class PlayerStateManager : MonoBehaviour
         GameObject other = collider.gameObject;
         if (state == PlayerState.Freemove && other.CompareTag("Rope"))
         {
-            collidingRope = other;
+            collidingObject = other;
             _interact = InteractAction.AttachRope;
+        }
+
+        if (state == PlayerState.Freemove && other.CompareTag("Ledge"))
+        {
+            collidingObject = other;
+            _interact = InteractAction.LedgeWalk;
         }
     }
 
     void OnTriggerExit(Collider collider)
     {
-        if (state == PlayerState.Freemove && collider.gameObject == collidingRope)
+        if (state == PlayerState.Freemove && collider.gameObject == collidingObject)
         {
-            collidingRope = null;
+            collidingObject = null;
             _interact = InteractAction.None;
         }
     }
