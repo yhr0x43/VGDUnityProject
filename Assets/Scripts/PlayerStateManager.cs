@@ -8,15 +8,15 @@ public enum PlayerState
     None,
     Freemove,
     Jumping,
-    Ropewalk
+    Ropewalk,
+    LedgeWalk
 }
 
 public enum InteractAction
 {
     None,
     AttachRope,
-    DetachRope,
-    LedgeWalk
+    DetachRope
 }
 
 public class PlayerStateManager : MonoBehaviour
@@ -77,7 +77,9 @@ public class PlayerStateManager : MonoBehaviour
         if (state == PlayerState.Freemove && other.CompareTag("Ledge"))
         {
             collidingObject = other;
-            _interact = InteractAction.LedgeWalk;
+            // Ledge needs to have a child called Wall
+            other.transform.Find("Wall").gameObject.GetComponent<MeshCollider>().enabled = true;
+            state = PlayerState.LedgeWalk;
         }
     }
 
@@ -88,5 +90,12 @@ public class PlayerStateManager : MonoBehaviour
             collidingObject = null;
             _interact = InteractAction.None;
         }
+
+        if (state == PlayerState.LedgeWalk && collider.gameObject == collidingObject)
+        {
+            collidingObject.transform.Find("Wall").gameObject.GetComponent<MeshCollider>().enabled = false;
+            collidingObject = null;
+            state = PlayerState.Freemove;
+        }    
     }
 }

@@ -8,6 +8,8 @@ public class PlayerControl : MonoBehaviour
 {
     public float moveSpeed = 10f;
     public float turnSpeed = 90f;
+    public float airSpeedMultiplier = 0.5f;
+    public float ledgeSpeedMultiplier = 0.5f;
     // FIXME jumpDistance is not working as intended
     public float jumpDistance = 0.04f;
     public float gravity = 0.08f;
@@ -76,8 +78,7 @@ public class PlayerControl : MonoBehaviour
                 {
                     cameralFocal.transform.Rotate(Vector3.up * lookDirection.x * turnSpeed * Time.deltaTime);
                     float cameraYaw = -virtualCamera.transform.rotation.y * Mathf.PI;
-                    Vector2 alignedMovement = Rotate(moveDirection, cameraYaw) * moveSpeed * Time.deltaTime;
-                    alignedMovement /= 2;
+                    Vector2 alignedMovement = Rotate(moveDirection, cameraYaw) * moveSpeed * Time.deltaTime * airSpeedMultiplier;
                     movement.x = alignedMovement.x;
                     movement.z = alignedMovement.y;
                     break;
@@ -85,7 +86,8 @@ public class PlayerControl : MonoBehaviour
             case PlayerState.Ropewalk:
                 {
                     float forwardInput = moveDirection.x;
-                    // while player is holding forward, move towards next vertice
+                    Vector3 currentLine = lineIndexes[nextIndex] - lineIndexes[prevIndex];
+                    movement = transform.position - Vector3.up * playerHeight / 2;
                     if (forwardInput > 0)
                     {
                         // move player to position of next index in lineRenderer
@@ -155,6 +157,16 @@ public class PlayerControl : MonoBehaviour
                         }
                     }
                     // transform.LookAt(endObject.transform);
+                    break;
+                }
+            case PlayerState.LedgeWalk:
+                {
+                    // An invisible wall is used to prevent the player from falling off ledge, relevant code found in PlayerStateManager
+                    cameralFocal.transform.Rotate(Vector3.up * lookDirection.x * turnSpeed * Time.deltaTime);
+                    float cameraYaw = -virtualCamera.transform.rotation.y * Mathf.PI;
+                    Vector2 alignedMovement = Rotate(moveDirection, cameraYaw) * moveSpeed * Time.deltaTime * ledgeSpeedMultiplier;
+                    movement.x = alignedMovement.x;
+                    movement.z = alignedMovement.y;
                     break;
                 }
             default: break;
@@ -228,10 +240,6 @@ public class PlayerControl : MonoBehaviour
                     stateManager.state = PlayerState.Freemove;
                     lineIndexes = null;
                     controller.enabled = true;
-                    break;
-                }
-            case InteractAction.LedgeWalk:
-                {
                     break;
                 }
         }
