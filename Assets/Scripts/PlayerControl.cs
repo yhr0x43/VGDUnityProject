@@ -42,7 +42,7 @@ public class PlayerControl : MonoBehaviour
     void Awake()
     {
         stateManager = GetComponent<PlayerStateManager>();
-        playerHeight = GetComponent<CapsuleCollider>().height;
+        playerHeight = GetComponent<CapsuleCollider>().bounds.size.y;
     }
 
     void OnEnable()
@@ -91,20 +91,18 @@ public class PlayerControl : MonoBehaviour
                     if (forwardInput > 0)
                     {
                         // move player to position of next index in lineRenderer
-                        transform.position = Vector3.MoveTowards(transform.position - Vector3.up * playerHeight / 2, lineIndexes[nextIndex], (moveSpeed * Time.deltaTime * forwardInput))
-                                + Vector3.up * playerHeight / 2;
+                        transform.position = Vector3.MoveTowards(transform.position, lineIndexes[nextIndex], (moveSpeed * Time.deltaTime * forwardInput));
                     }
 
                     // while player is holding back, move towards previous vertice
                     if (forwardInput < 0)
                     {
                         // move player to position of next index in lineRenderer
-                        transform.position = Vector3.MoveTowards(transform.position - Vector3.up * playerHeight / 2, lineIndexes[prevIndex], (moveSpeed * Time.deltaTime * -forwardInput))
-                                + Vector3.up * playerHeight / 2;
+                        transform.position = Vector3.MoveTowards(transform.position, lineIndexes[prevIndex], (moveSpeed * Time.deltaTime * -forwardInput));
                     }
 
                     // check if player is close enough to the nextIndex position
-                    if (Vector3.Distance(transform.position - Vector3.up * playerHeight / 2, lineIndexes[nextIndex]) < 0.001f)
+                    if (Vector3.Distance(transform.position, lineIndexes[nextIndex]) < 0.001f)
                     {
                         // change currentIndex, nextIndex, and prevIndex
                         currentIndex = nextIndex;
@@ -116,8 +114,7 @@ public class PlayerControl : MonoBehaviour
                         }
                         else
                         {
-                            transform.position = Vector3.MoveTowards(transform.position - Vector3.up * playerHeight / 2, lineIndexes[prevIndex], (moveSpeed * Time.deltaTime * forwardInput))
-                                + Vector3.up * playerHeight / 2;
+                            transform.position = Vector3.MoveTowards(transform.position, lineIndexes[prevIndex], (moveSpeed * Time.deltaTime * forwardInput));
                         }
                         // if theres more rope to travel on going backwards
                         if (prevIndex > 0)
@@ -126,11 +123,10 @@ public class PlayerControl : MonoBehaviour
                         }
                         else
                         {
-                            transform.position = Vector3.MoveTowards(transform.position - Vector3.up * playerHeight / 2, lineIndexes[nextIndex], (moveSpeed * Time.deltaTime * forwardInput))
-                                + Vector3.up * playerHeight / 2;
+                            transform.position = Vector3.MoveTowards(transform.position, lineIndexes[nextIndex], (moveSpeed * Time.deltaTime * forwardInput));
                         }
                     }
-                    if (Vector3.Distance(transform.position - Vector3.up * playerHeight / 2, lineIndexes[prevIndex]) < 0.001f)
+                    if (Vector3.Distance(transform.position, lineIndexes[prevIndex]) < 0.001f)
                     {
                         // change currentIndex, nextIndex, and prevIndex
                         currentIndex = prevIndex;
@@ -142,8 +138,7 @@ public class PlayerControl : MonoBehaviour
                         }
                         else
                         {
-                            transform.position = Vector3.MoveTowards(transform.position - Vector3.up * playerHeight / 2, lineIndexes[prevIndex], (moveSpeed * Time.deltaTime * forwardInput))
-                                + Vector3.up * playerHeight / 2;
+                            transform.position = Vector3.MoveTowards(transform.position, lineIndexes[prevIndex], (moveSpeed * Time.deltaTime * forwardInput));
                         }
                         // if theres more rope to travel on going backwards
                         if (prevIndex > 0)
@@ -152,8 +147,7 @@ public class PlayerControl : MonoBehaviour
                         }
                         else
                         {
-                            transform.position = Vector3.MoveTowards(transform.position - Vector3.up * playerHeight / 2, lineIndexes[nextIndex], (moveSpeed * Time.deltaTime * forwardInput))
-                                + Vector3.up * playerHeight / 2;
+                            transform.position = Vector3.MoveTowards(transform.position, lineIndexes[nextIndex], (moveSpeed * Time.deltaTime * forwardInput));
                         }
                     }
                     // transform.LookAt(endObject.transform);
@@ -232,7 +226,7 @@ public class PlayerControl : MonoBehaviour
 
                     // https://forum.unity.com/threads/does-transform-position-work-on-a-charactercontroller.36149/#post-4132021
                     controller.enabled = false;
-                    transform.position = newPlayerPos + Vector3.up * playerHeight / 2;
+                    transform.position = newPlayerPos;
                     break;
                 }
             case InteractAction.DetachRope:
