@@ -27,6 +27,9 @@ public class PlayerControl : MonoBehaviour
     CharacterController controller;
     PlayerStateManager stateManager;
 
+    float horizontalInput;
+    float verticalInput;
+
     Vector3[] lineIndexes;
     int currentIndex, nextIndex, prevIndex;
 
@@ -65,12 +68,17 @@ public class PlayerControl : MonoBehaviour
     void Update()
     {
         movement = Vector3.zero;
+        horizontalInput = Input.GetAxis("Horizontal");
+        verticalInput = Input.GetAxis("Vertical");
         switch (stateManager.state)
         {
             case PlayerState.Freemove:
-                {
+                {   
+                    // adjust the camera direction using the right analog stick
                     cameralFocal.transform.Rotate(Vector3.up * lookDirection.x * turnSpeed * Time.deltaTime);
                     float cameraYaw = -virtualCamera.transform.rotation.y * Mathf.PI;
+
+                    // move the player forward
                     Vector2 alignedMovement = Rotate(moveDirection, cameraYaw) * moveSpeed * Time.deltaTime;
                     movement.x = alignedMovement.x;
                     movement.z = alignedMovement.y;
@@ -187,10 +195,9 @@ public class PlayerControl : MonoBehaviour
     public void playerRotation()
     {
         Debug.Log(moveDirection);
-        float horizontalInput = Input.GetAxis("Horizontal");
-        float verticalInput = Input.GetAxis("Vertical");
 
-        Vector3 movementDirection = new Vector3(movement.x, 0, movement.z);
+        Vector3 movementDirection = new Vector3(horizontalInput, 0, verticalInput);
+        //Vector3 movementDirection = new Vector3(movement.x, 0, movement.z);
         //movementDirection.Normalize();
 
         //transform.Translate(movementDirection * moveSpeed * Time.deltaTime, Space.World);
