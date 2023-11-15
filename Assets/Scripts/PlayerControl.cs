@@ -74,7 +74,7 @@ public class PlayerControl : MonoBehaviour
                 {   
                     // adjust the camera direction using the right analog stick
                     cameralFocal.transform.Rotate(Vector3.up * lookDirection.x * turnSpeed * Time.deltaTime);
-                    float cameraYaw = -virtualCamera.transform.rotation.y * Mathf.PI;
+                    float cameraYaw = -cameralFocal.transform.rotation.y * Mathf.PI;
 
                     // move the player forward
                     Vector2 alignedMovement = Rotate(moveDirection, cameraYaw) * moveSpeed * Time.deltaTime;
@@ -82,7 +82,7 @@ public class PlayerControl : MonoBehaviour
                     movement.z = alignedMovement.y;
                     
                     //controller.transform.Rotate(Vector3.up * movement.x * (720f * Time.deltaTime));
-                    playerRotation();
+                    playerRotation(new Vector3(alignedMovement.x, 0, alignedMovement.y));
 
                     break;
                 }
@@ -189,18 +189,11 @@ public class PlayerControl : MonoBehaviour
     }
 
     // rotates the player model based on input
-    public void playerRotation()
+    public void playerRotation(Vector3 movement)
     {
-        Debug.Log(moveDirection);
-
-        Vector3 movementDirection = new Vector3(moveDirection.x, 0, moveDirection.y);
-        //movementDirection.Normalize();
-
-        //transform.Translate(movementDirection * moveSpeed * Time.deltaTime, Space.World);
-        
-        if (movementDirection != Vector3.zero)
+        if (movement != Vector3.zero)
         {
-            Quaternion toRotation = Quaternion.LookRotation(movementDirection, Vector3.up);
+            Quaternion toRotation = Quaternion.LookRotation(movement, Vector3.up);
             transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, 360f * Time.deltaTime);            
         }
     }
