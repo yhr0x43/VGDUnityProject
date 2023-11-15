@@ -21,6 +21,8 @@ public class PlayerControl : MonoBehaviour
     Vector2 moveDirection;
     Vector2 lookDirection;
 
+    Vector3 movement;
+
     public GameObject cameralFocal, virtualCamera;
     CharacterController controller;
     PlayerStateManager stateManager;
@@ -62,7 +64,7 @@ public class PlayerControl : MonoBehaviour
 
     void Update()
     {
-        Vector3 movement = Vector3.zero;
+        movement = Vector3.zero;
         switch (stateManager.state)
         {
             case PlayerState.Freemove:
@@ -72,6 +74,11 @@ public class PlayerControl : MonoBehaviour
                     Vector2 alignedMovement = Rotate(moveDirection, cameraYaw) * moveSpeed * Time.deltaTime;
                     movement.x = alignedMovement.x;
                     movement.z = alignedMovement.y;
+                    
+                    
+                    //controller.transform.Rotate(Vector3.up * movement.x * (720f * Time.deltaTime));
+                    playerRotation();
+
                     break;
                 }
             case PlayerState.Jumping:
@@ -176,6 +183,25 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
+    // rotates the player model based on input
+    public void playerRotation()
+    {
+        Debug.Log(moveDirection);
+        float horizontalInput = Input.GetAxis("Horizontal");
+        float verticalInput = Input.GetAxis("Vertical");
+
+        Vector3 movementDirection = new Vector3(movement.x, 0, movement.z);
+        //movementDirection.Normalize();
+
+        //transform.Translate(movementDirection * moveSpeed * Time.deltaTime, Space.World);
+        
+        if (movementDirection != Vector3.zero)
+        {
+            Quaternion toRotation = Quaternion.LookRotation(movementDirection, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, 360f * Time.deltaTime);            
+        }
+    }
+
     public void OnMove(InputAction.CallbackContext context)
     {
         moveDirection = context.ReadValue<Vector2>();
@@ -236,6 +262,13 @@ public class PlayerControl : MonoBehaviour
                     controller.enabled = true;
                     break;
                 }
+        }
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other == GameObject.Find("Death box"))
+        {
+            transform.position = Vector3.zero;
         }
     }
 }
