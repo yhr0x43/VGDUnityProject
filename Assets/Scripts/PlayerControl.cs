@@ -14,6 +14,11 @@ public class PlayerControl : MonoBehaviour
     public float jumpDistance = 0.04f;
     public float gravity = 0.08f;
 
+    int currentIndex, nextIndex, prevIndex;
+    float playerHeight;
+    float yVelocity = 0f;
+    float playerVelocity = 0f;
+
     /* 
      * InputSystem: https://youtu.be/HmXU4dZbaMw
      * https://learn.unity.com/tutorial/configuring-an-xbox-controller-for-user-input-2019-2
@@ -22,18 +27,12 @@ public class PlayerControl : MonoBehaviour
     Vector2 lookDirection;
 
     Vector3 movement;
-
-    Animator anim;
+    Vector3[] lineIndexes;
 
     public GameObject cameralFocal, virtualCamera;
     CharacterController controller;
+    Animator anim;
     PlayerStateManager stateManager;
-
-    Vector3[] lineIndexes;
-    int currentIndex, nextIndex, prevIndex;
-
-    float playerHeight;
-    float yVelocity = 0f;
 
     private static Vector2 Rotate(Vector2 v, float delta)
     {
@@ -87,6 +86,8 @@ public class PlayerControl : MonoBehaviour
                     //controller.transform.Rotate(Vector3.up * movement.x * (720f * Time.deltaTime));
                     playerRotation(new Vector3(alignedMovement.x, 0, alignedMovement.y));
 
+                    playerVelocity = controller.velocity.magnitude;
+                    anim.SetFloat("PlayerVelocity",playerVelocity);
                     break;
                 }
             case PlayerState.Jumping:
