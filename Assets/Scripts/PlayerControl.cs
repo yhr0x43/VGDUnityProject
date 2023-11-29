@@ -166,6 +166,7 @@ public class PlayerControl : MonoBehaviour
                             transform.position = Vector3.MoveTowards(transform.position, lineIndexes[nextIndex], (moveSpeed * Time.deltaTime * forwardInput));
                         }
                     }
+                    anim.SetBool("IsGrounded", true);
                     // transform.LookAt(endObject.transform);
                     break;
                 }
