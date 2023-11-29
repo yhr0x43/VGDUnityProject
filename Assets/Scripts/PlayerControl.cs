@@ -23,6 +23,8 @@ public class PlayerControl : MonoBehaviour
 
     Vector3 movement;
 
+    Animator anim;
+
     public GameObject cameralFocal, virtualCamera;
     CharacterController controller;
     PlayerStateManager stateManager;
@@ -60,6 +62,7 @@ public class PlayerControl : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        anim = GetComponent<Animator>();
     }
 
     void Update()
@@ -93,6 +96,7 @@ public class PlayerControl : MonoBehaviour
                     Vector2 alignedMovement = Rotate(moveDirection, cameraYaw) * moveSpeed * Time.deltaTime * airSpeedMultiplier;
                     movement.x = alignedMovement.x;
                     movement.z = alignedMovement.y;
+                    anim.SetBool("IsGrounded", false);
                     break;
                 }
             case PlayerState.Ropewalk:
@@ -183,6 +187,10 @@ public class PlayerControl : MonoBehaviour
             {
                 yVelocity -= gravity * Time.deltaTime;
             }
+            if(controller.isGrounded)
+            {
+                anim.SetBool("IsGrounded", true);
+            }
             movement.y = yVelocity;
             controller.Move(movement);
         }
@@ -217,8 +225,10 @@ public class PlayerControl : MonoBehaviour
         // https://docs.unity3d.com/Packages/com.unity.charactercontroller@1.0/manual/jumping.html
         if (controller.isGrounded)
         {
-            yVelocity = jumpDistance;
+            yVelocity = jumpDistance; 
         }
+
+        anim.SetBool("IsGrounded", false);
     }
 
     public void OnInteract(InputAction.CallbackContext context)
