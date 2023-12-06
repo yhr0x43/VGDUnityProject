@@ -302,8 +302,8 @@ MonoBehaviour:
   turnSpeed: 90
   airSpeedMultiplier: 0.5
   ledgeSpeedMultiplier: 0.5
-  jumpDistance: 0.04
-  gravity: 0.08
+  jumpDistance: 0.45
+  gravity: 0.8
   cameralFocal: {fileID: 7999959550418150501}
   virtualCamera: {fileID: 0}
 --- !u!114 &5001964070551490609
