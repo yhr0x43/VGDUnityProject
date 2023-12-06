@@ -14,6 +14,8 @@ public class PlayerControl : MonoBehaviour
     public float jumpDistance = 0.04f;
     public float gravity = 0.08f;
 
+    int jumpCounter = 1;
+
     int currentIndex, nextIndex, prevIndex;
     float playerHeight;
     float yVelocity = 0f;
@@ -87,17 +89,7 @@ public class PlayerControl : MonoBehaviour
                     playerRotation(new Vector3(alignedMovement.x, 0, alignedMovement.y));
 
                     playerVelocity = controller.velocity.magnitude;
-                    anim.SetFloat("PlayerVelocity",playerVelocity);
-                    break;
-                }
-            case PlayerState.Jumping:
-                {
-                    cameralFocal.transform.Rotate(Vector3.up * lookDirection.x * turnSpeed * Time.deltaTime);
-                    float cameraYaw = -virtualCamera.transform.rotation.y * Mathf.PI;
-                    Vector2 alignedMovement = Rotate(moveDirection, cameraYaw) * moveSpeed * Time.deltaTime * airSpeedMultiplier;
-                    movement.x = alignedMovement.x;
-                    movement.z = alignedMovement.y;
-                    anim.SetBool("IsGrounded", false);
+                    anim.SetFloat("PlayerVelocity", playerVelocity);
                     break;
                 }
             case PlayerState.Ropewalk:
@@ -188,11 +180,13 @@ public class PlayerControl : MonoBehaviour
             if (!controller.isGrounded)
             {
                 yVelocity -= gravity * Time.deltaTime;
+                movement *= airSpeedMultiplier;
             }
-            if(controller.isGrounded)
+            else
             {
-                anim.SetBool("IsGrounded", true);
+                jumpCounter = 1;
             }
+            anim.SetBool("IsGrounded", controller.isGrounded);
             movement.y = yVelocity;
             controller.Move(movement);
         }
@@ -225,9 +219,25 @@ public class PlayerControl : MonoBehaviour
 
         // TODO jumping via CharacterControlUtilities.StandardJump (requires KinematicCharacterBody?)
         // https://docs.unity3d.com/Packages/com.unity.charactercontroller@1.0/manual/jumping.html
-        if (controller.isGrounded)
+        switch (stateManager.state)
         {
-            yVelocity = jumpDistance; 
+            case PlayerState.Ropewalk:
+                {
+                    stateManager.state = PlayerState.Freemove;
+                    lineIndexes = null;
+                    controller.enabled = true;
+                    yVelocity = jumpDistance;
+                    break;
+                }
+            default:
+                {
+                    if (jumpCounter > 0)
+                    {
+                        jumpCounter--;
+                        yVelocity = jumpDistance;
+                    }
+                    break;
+                }
         }
 
         anim.SetBool("IsGrounded", false);

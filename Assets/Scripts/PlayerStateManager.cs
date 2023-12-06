@@ -7,7 +7,6 @@ public enum PlayerState
 {
     None,
     Freemove,
-    Jumping,
     Ropewalk,
     LedgeWalk
 }
@@ -51,18 +50,13 @@ public class PlayerStateManager : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (PlayerState.Jumping == state && controller.isGrounded)
-        {
-            state = PlayerState.Freemove;
-        }
+        
     }
 
     /* This needs to be registered with Player Input Events */
     public void OnJump(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
-        if (PlayerState.Freemove == state)
-            state = PlayerState.Jumping;
     }
 
     void OnTriggerEnter(Collider collider)
