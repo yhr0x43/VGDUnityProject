@@ -29,6 +29,7 @@ public class PlayerControl : MonoBehaviour
     Vector2 lookDirection;
 
     Vector3 movement;
+
     Vector3[] lineIndexes;
 
     public GameObject cameralFocal, virtualCamera;
@@ -95,8 +96,44 @@ public class PlayerControl : MonoBehaviour
             case PlayerState.Ropewalk:
                 {
                     float forwardInput = moveDirection.x;
-                    Vector3 currentLine = lineIndexes[nextIndex] - lineIndexes[prevIndex];
-                    movement = transform.position - Vector3.up * playerHeight / 2;
+                    Vector3 lineSegment = lineIndexes[nextIndex] - lineIndexes[prevIndex];
+                    movement = lineSegment * (moveSpeed * Time.deltaTime * forwardInput);
+                    Debug.Log(Vector3.Distance(transform.position, lineIndexes[nextIndex]));
+                    if (Vector3.Distance(lineIndexes[prevIndex], lineIndexes[nextIndex]) < Vector3.Distance(lineIndexes[prevIndex], transform.position))
+                    {
+                        if (nextIndex + 1 < lineIndexes.Length)
+                        {
+                            nextIndex += 1;
+                            prevIndex += 1;
+                        }
+                        else
+                        {
+                            stateManager.state = PlayerState.Freemove;
+                            lineIndexes = null;
+                        }
+                    }
+                    if (Vector3.Distance(lineIndexes[prevIndex], lineIndexes[nextIndex]) < Vector3.Distance(lineIndexes[nextIndex], transform.position))
+                    {
+                        if (prevIndex - 1 > 0)
+                        {
+                            nextIndex -= 1;
+                            prevIndex -= 1;
+                        }
+                        else
+                        {
+                            stateManager.state = PlayerState.Freemove;
+                            lineIndexes = null;
+                        }
+                    }
+                    if ((0 == prevIndex || lineIndexes.Length - 1 == nextIndex) && controller.isGrounded)
+                    {
+                        stateManager.state = PlayerState.Freemove;
+                        lineIndexes = null;
+                    }
+                    anim.SetFloat("PlayerVelocity", forwardInput);
+                    anim.SetBool("IsGrounded", true);
+                    break;
+                    /*
                     if (forwardInput > 0)
                     {
                         // move player to position of next index in lineRenderer
@@ -109,6 +146,7 @@ public class PlayerControl : MonoBehaviour
                         // move player to position of next index in lineRenderer
                         transform.position = Vector3.MoveTowards(transform.position, lineIndexes[prevIndex], (moveSpeed * Time.deltaTime * -forwardInput));
                     }
+                    */
 
                     // check if player is close enough to the nextIndex position
                     if (Vector3.Distance(transform.position, lineIndexes[nextIndex]) < 0.001f)
@@ -159,9 +197,7 @@ public class PlayerControl : MonoBehaviour
                             transform.position = Vector3.MoveTowards(transform.position, lineIndexes[nextIndex], (moveSpeed * Time.deltaTime * forwardInput));
                         }
                     }
-                    anim.SetBool("IsGrounded", true);
-                    // transform.LookAt(endObject.transform);
-                    break;
+                    
                 }
             case PlayerState.LedgeWalk:
                 {
@@ -177,17 +213,20 @@ public class PlayerControl : MonoBehaviour
         }
         if (controller.enabled)
         {
-            if (!controller.isGrounded)
+            if (stateManager.state != PlayerState.Ropewalk)
             {
-                yVelocity -= gravity * Time.deltaTime;
-                movement *= airSpeedMultiplier;
+                if (!controller.isGrounded)
+                {
+                    yVelocity -= gravity * Time.deltaTime;
+                    movement *= airSpeedMultiplier;
+                }
+                else
+                {
+                    jumpCounter = 1;
+                }
+                anim.SetBool("IsGrounded", controller.isGrounded);
+                movement.y = yVelocity;
             }
-            else
-            {
-                jumpCounter = 1;
-            }
-            anim.SetBool("IsGrounded", controller.isGrounded);
-            movement.y = yVelocity;
             controller.Move(movement);
         }
     }
@@ -260,9 +299,10 @@ public class PlayerControl : MonoBehaviour
                     if (Physics.Raycast(transform.position, newPlayerPos - transform.position, out hit, Vector3.Magnitude(newPlayerPos - transform.position)))
                         break;
 
-                    currentIndex = Array.IndexOf(lineIndexes, newPlayerPos);
-                    prevIndex = currentIndex - 1;
-                    nextIndex = currentIndex + 1;
+                    nextIndex = Array.IndexOf(lineIndexes, newPlayerPos);
+                    // Assume the line has at least 2 points
+                    nextIndex = nextIndex == 0 ? 1 : nextIndex;
+                    prevIndex = nextIndex - 1;
 
                     this.lineIndexes = lineIndexes;
 
@@ -271,6 +311,7 @@ public class PlayerControl : MonoBehaviour
                     // https://forum.unity.com/threads/does-transform-position-work-on-a-charactercontroller.36149/#post-4132021
                     controller.enabled = false;
                     transform.position = newPlayerPos;
+                    controller.enabled = true;
                     break;
                 }
             case InteractAction.DetachRope:
