@@ -8,6 +8,7 @@ public class PlayerControl : MonoBehaviour
 {
     public float moveSpeed = 10f;
     public float turnSpeed = 90f;
+    public float ropeWalkSpeedMultiplier = 0.4f;
     public float airSpeedMultiplier = 0.5f;
     public float ledgeSpeedMultiplier = 0.5f;
     // FIXME jumpDistance is not working as intended
@@ -16,10 +17,10 @@ public class PlayerControl : MonoBehaviour
 
     int jumpCounter = 1;
 
-    int currentIndex, nextIndex, prevIndex;
-    float playerHeight;
+    int nextIndex, prevIndex;
+    Vector3[] lineIndexes;
+
     float yVelocity = 0f;
-    float playerVelocity = 0f;
 
     /* 
      * InputSystem: https://youtu.be/HmXU4dZbaMw
@@ -30,7 +31,6 @@ public class PlayerControl : MonoBehaviour
 
     Vector3 movement;
 
-    Vector3[] lineIndexes;
 
     public GameObject cameralFocal, virtualCamera;
     CharacterController controller;
@@ -48,7 +48,6 @@ public class PlayerControl : MonoBehaviour
     void Awake()
     {
         stateManager = GetComponent<PlayerStateManager>();
-        playerHeight = GetComponent<CapsuleCollider>().bounds.size.y;
     }
 
     void OnEnable()
@@ -73,32 +72,36 @@ public class PlayerControl : MonoBehaviour
         // class members moveDirection and lookDirection as a callback of Player Input component
         // These two Vector2 should be input of the sticks where x component is horizontal and y is vertical, values between -1 and 1
         movement = Vector3.zero;
+        float cameraYaw = -cameralFocal.transform.eulerAngles.y * Mathf.PI / 180;
+        Vector2 alignedMovement = Rotate(moveDirection, cameraYaw) * Time.deltaTime * moveSpeed;
+
         switch (stateManager.state)
         {
             case PlayerState.Freemove:
                 {   
                     // adjust the camera direction using the right analog stick
                     cameralFocal.transform.Rotate(Vector3.up * lookDirection.x * turnSpeed * Time.deltaTime);
-                    float cameraYaw = -cameralFocal.transform.rotation.y * Mathf.PI;
 
                     // move the player forward
-                    Vector2 alignedMovement = Rotate(moveDirection, cameraYaw) * moveSpeed * Time.deltaTime;
                     movement.x = alignedMovement.x;
                     movement.z = alignedMovement.y;
                     
-                    //controller.transform.Rotate(Vector3.up * movement.x * (720f * Time.deltaTime));
-                    playerRotation(new Vector3(alignedMovement.x, 0, alignedMovement.y));
+                    playerRotation(movement);
 
-                    playerVelocity = controller.velocity.magnitude;
-                    anim.SetFloat("PlayerVelocity", playerVelocity);
+                    anim.SetFloat("PlayerVelocity", controller.velocity.magnitude);
                     break;
                 }
             case PlayerState.Ropewalk:
                 {
-                    float forwardInput = moveDirection.x;
-                    Vector3 lineSegment = lineIndexes[nextIndex] - lineIndexes[prevIndex];
-                    movement = lineSegment * (moveSpeed * Time.deltaTime * forwardInput);
-                    Debug.Log(Vector3.Distance(transform.position, lineIndexes[nextIndex]));
+                    Vector3 lineSegment = (lineIndexes[nextIndex] - lineIndexes[prevIndex]).normalized;
+                    float forwardInput = Vector3.Dot(lineSegment, new Vector3(alignedMovement.x, 0, alignedMovement.y)) * ropeWalkSpeedMultiplier;
+                    movement = lineSegment * forwardInput;
+
+                    playerRotation(movement);
+
+                    anim.SetFloat("PlayerVelocity", controller.velocity.magnitude);
+                    anim.SetBool("IsGrounded", true);
+
                     if (Vector3.Distance(lineIndexes[prevIndex], lineIndexes[nextIndex]) < Vector3.Distance(lineIndexes[prevIndex], transform.position))
                     {
                         if (nextIndex + 1 < lineIndexes.Length)
@@ -112,9 +115,9 @@ public class PlayerControl : MonoBehaviour
                             lineIndexes = null;
                         }
                     }
-                    if (Vector3.Distance(lineIndexes[prevIndex], lineIndexes[nextIndex]) < Vector3.Distance(lineIndexes[nextIndex], transform.position))
+                    else if (Vector3.Distance(lineIndexes[prevIndex], lineIndexes[nextIndex]) < Vector3.Distance(lineIndexes[nextIndex], transform.position))
                     {
-                        if (prevIndex - 1 > 0)
+                        if (prevIndex > 0)
                         {
                             nextIndex -= 1;
                             prevIndex -= 1;
@@ -125,110 +128,37 @@ public class PlayerControl : MonoBehaviour
                             lineIndexes = null;
                         }
                     }
-                    if ((0 == prevIndex || lineIndexes.Length - 1 == nextIndex) && controller.isGrounded)
-                    {
-                        stateManager.state = PlayerState.Freemove;
-                        lineIndexes = null;
-                    }
-                    anim.SetFloat("PlayerVelocity", forwardInput);
-                    anim.SetBool("IsGrounded", true);
                     break;
-                    /*
-                    if (forwardInput > 0)
-                    {
-                        // move player to position of next index in lineRenderer
-                        transform.position = Vector3.MoveTowards(transform.position, lineIndexes[nextIndex], (moveSpeed * Time.deltaTime * forwardInput));
-                    }
-
-                    // while player is holding back, move towards previous vertice
-                    if (forwardInput < 0)
-                    {
-                        // move player to position of next index in lineRenderer
-                        transform.position = Vector3.MoveTowards(transform.position, lineIndexes[prevIndex], (moveSpeed * Time.deltaTime * -forwardInput));
-                    }
-                    */
-
-                    // check if player is close enough to the nextIndex position
-                    if (Vector3.Distance(transform.position, lineIndexes[nextIndex]) < 0.001f)
-                    {
-                        // change currentIndex, nextIndex, and prevIndex
-                        currentIndex = nextIndex;
-
-                        // if theres more rope to travel on going forwards
-                        if (nextIndex < lineIndexes.Length - 1)
-                        {
-                            nextIndex = currentIndex + 1;
-                        }
-                        else
-                        {
-                            transform.position = Vector3.MoveTowards(transform.position, lineIndexes[prevIndex], (moveSpeed * Time.deltaTime * forwardInput));
-                        }
-                        // if theres more rope to travel on going backwards
-                        if (prevIndex > 0)
-                        {
-                            prevIndex = currentIndex - 1;
-                        }
-                        else
-                        {
-                            transform.position = Vector3.MoveTowards(transform.position, lineIndexes[nextIndex], (moveSpeed * Time.deltaTime * forwardInput));
-                        }
-                    }
-                    if (Vector3.Distance(transform.position, lineIndexes[prevIndex]) < 0.001f)
-                    {
-                        // change currentIndex, nextIndex, and prevIndex
-                        currentIndex = prevIndex;
-
-                        // if theres more rope to travel on going forwards
-                        if (nextIndex < lineIndexes.Length - 1)
-                        {
-                            nextIndex = currentIndex + 1;
-                        }
-                        else
-                        {
-                            transform.position = Vector3.MoveTowards(transform.position, lineIndexes[prevIndex], (moveSpeed * Time.deltaTime * forwardInput));
-                        }
-                        // if theres more rope to travel on going backwards
-                        if (prevIndex > 0)
-                        {
-                            prevIndex = currentIndex - 1;
-                        }
-                        else
-                        {
-                            transform.position = Vector3.MoveTowards(transform.position, lineIndexes[nextIndex], (moveSpeed * Time.deltaTime * forwardInput));
-                        }
-                    }
-                    
                 }
             case PlayerState.LedgeWalk:
                 {
                     // An invisible wall is used to prevent the player from falling off ledge, relevant code found in PlayerStateManager
                     cameralFocal.transform.Rotate(Vector3.up * lookDirection.x * turnSpeed * Time.deltaTime);
-                    float cameraYaw = -virtualCamera.transform.rotation.y * Mathf.PI;
-                    Vector2 alignedMovement = Rotate(moveDirection, cameraYaw) * moveSpeed * Time.deltaTime * ledgeSpeedMultiplier;
+                    alignedMovement *= ledgeSpeedMultiplier;
                     movement.x = alignedMovement.x;
                     movement.z = alignedMovement.y;
+
+                    playerRotation(movement);
+                    anim.SetFloat("PlayerVelocity", controller.velocity.magnitude);
                     break;
                 }
             default: break;
         }
-        if (controller.enabled)
+        if (stateManager.state != PlayerState.Ropewalk)
         {
-            if (stateManager.state != PlayerState.Ropewalk)
+            if (!controller.isGrounded)
             {
-                if (!controller.isGrounded)
-                {
-                    yVelocity -= gravity * Time.deltaTime;
-                    movement *= airSpeedMultiplier;
-                }
-                else
-                {
-                    jumpCounter = 1;
-                }
-                anim.SetBool("IsGrounded", controller.isGrounded);
-                movement.y = yVelocity;
+                yVelocity -= gravity * Time.deltaTime;
+                movement *= airSpeedMultiplier;
             }
-            controller.Move(movement);
+            else
+            {
+                jumpCounter = 1;
+            }
+            anim.SetBool("IsGrounded", controller.isGrounded);
+            movement.y = yVelocity;
         }
+        controller.Move(movement);
     }
 
     // rotates the player model based on input
@@ -312,6 +242,7 @@ public class PlayerControl : MonoBehaviour
                     controller.enabled = false;
                     transform.position = newPlayerPos;
                     controller.enabled = true;
+
                     break;
                 }
             case InteractAction.DetachRope:
