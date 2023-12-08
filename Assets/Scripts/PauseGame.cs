@@ -44,6 +44,7 @@ public class PauseGame : MonoBehaviour
     {
         Application.Quit();
     }
+    
     /*
     public void Pause()
     {

@@ -751,13 +751,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2270263191793356677, guid: 122319c7be08b0744a7b935be64a50d5, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2567715675217947919, guid: 122319c7be08b0744a7b935be64a50d5, type: 3}
       propertyPath: m_Name
       value: Rope Tutorial Sign
       objectReference: {fileID: 0}
     - target: {fileID: 4034137650582334832, guid: 122319c7be08b0744a7b935be64a50d5, type: 3}
       propertyPath: m_text
-      value: While near the rope, press the X button to attach
+      value: While near a rope, press the X button or the F keyto attach
+      objectReference: {fileID: 0}
+    - target: {fileID: 4034137650582334832, guid: 122319c7be08b0744a7b935be64a50d5, type: 3}
+      propertyPath: m_fontSize
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 4034137650582334832, guid: 122319c7be08b0744a7b935be64a50d5, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 6727408140562396078, guid: 122319c7be08b0744a7b935be64a50d5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1105,7 +1117,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4034137650582334832, guid: 122319c7be08b0744a7b935be64a50d5, type: 3}
       propertyPath: m_text
-      value: Detach from the rope by jumping or the X button
+      value: You can double jump by jumping in the air
       objectReference: {fileID: 0}
     - target: {fileID: 6727408140562396078, guid: 122319c7be08b0744a7b935be64a50d5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1516,11 +1528,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8339532826692482156, guid: fa17dd5f804dcbe4288d7ac7d94c90cb, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.000000040190915
+      value: 0.000000040190915
       objectReference: {fileID: 0}
     - target: {fileID: 8339532826692482156, guid: fa17dd5f804dcbe4288d7ac7d94c90cb, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.000000011132238
+      value: -0.000000011132238
       objectReference: {fileID: 0}
     - target: {fileID: 9001321887256349735, guid: fa17dd5f804dcbe4288d7ac7d94c90cb, type: 3}
       propertyPath: m_LocalRotation.x
@@ -1528,11 +1540,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9001321887256349735, guid: fa17dd5f804dcbe4288d7ac7d94c90cb, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.000000040190915
+      value: 0.000000040190915
       objectReference: {fileID: 0}
     - target: {fileID: 9001321887256349735, guid: fa17dd5f804dcbe4288d7ac7d94c90cb, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.000000011132238
+      value: -0.000000011132238
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -7766,7 +7778,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4034137650582334832, guid: 122319c7be08b0744a7b935be64a50d5, type: 3}
       propertyPath: m_text
-      value: Detach from the rope by jumping or the X button
+      value: Detach from a rope by jumping or pressing the X button
+      objectReference: {fileID: 0}
+    - target: {fileID: 4034137650582334832, guid: 122319c7be08b0744a7b935be64a50d5, type: 3}
+      propertyPath: m_fontSize
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 4034137650582334832, guid: 122319c7be08b0744a7b935be64a50d5, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 6727408140562396078, guid: 122319c7be08b0744a7b935be64a50d5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7827,9 +7847,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4034137650582334832, guid: 122319c7be08b0744a7b935be64a50d5, type: 3}
       propertyPath: m_text
-      value: 'Press the A button
-
-        to jump'
+      value: Press the A button or the spacebar to jump
       objectReference: {fileID: 0}
     - target: {fileID: 6727408140562396078, guid: 122319c7be08b0744a7b935be64a50d5, type: 3}
       propertyPath: m_LocalPosition.x

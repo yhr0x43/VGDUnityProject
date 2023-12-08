@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MountainLevel.unity
     guid: 9ec4daa7871444480b1c66f888473603
+  - enabled: 1
+    path: Assets/Scenes/PortCityLevel.unity
+    guid: 94ea7ff1be0d6a548b515fec5a424278
   m_configObjects: {}

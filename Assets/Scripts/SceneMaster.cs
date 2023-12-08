@@ -42,7 +42,7 @@ public class SceneMaster : MonoBehaviour
 
     IEnumerator LoadPortCityLevel()
     {
-        AsyncOperation loadLevel = SceneManager.LoadSceneAsync("MountainLevel");
+        AsyncOperation loadLevel = SceneManager.LoadSceneAsync("PortCityLevel");
 
         while(!loadLevel.isDone)
         {
