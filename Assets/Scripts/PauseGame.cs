@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Game : MonoBehaviour
+public class PauseGame : MonoBehaviour
 {
-    private bool isGamePaused;
+    public bool isGamePaused;
 
     public GameObject pauseMenu;
     public Button quitButton;

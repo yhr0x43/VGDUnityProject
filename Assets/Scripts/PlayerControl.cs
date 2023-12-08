@@ -30,7 +30,7 @@ public class PlayerControl : MonoBehaviour
     Vector2 lookDirection;
 
     Vector3 movement;
-
+    PauseGame pauseGame;
 
     public GameObject cameralFocal, virtualCamera;
     CharacterController controller;
@@ -48,6 +48,7 @@ public class PlayerControl : MonoBehaviour
     void Awake()
     {
         stateManager = GetComponent<PlayerStateManager>();
+        pauseGame = GetComponent<PauseGame>();
     }
 
     void OnEnable()
@@ -158,7 +159,11 @@ public class PlayerControl : MonoBehaviour
             anim.SetBool("IsGrounded", controller.isGrounded);
             movement.y = yVelocity;
         }
-        controller.Move(movement);
+        
+        if(pauseGame.isGamePaused == false)
+        {
+            controller.Move(movement);
+        }
     }
 
     // rotates the player model based on input
@@ -183,6 +188,8 @@ public class PlayerControl : MonoBehaviour
 
     public void OnJump(InputAction.CallbackContext context)
     {
+        if(pauseGame.isGamePaused == true) return;
+        
         // explain context.performed https://forum.unity.com/threads/player-input-component-triggering-events-multiple-times.851959/
         if (!context.performed) return;
 
@@ -214,6 +221,8 @@ public class PlayerControl : MonoBehaviour
 
     public void OnInteract(InputAction.CallbackContext context)
     {
+        if(pauseGame.isGamePaused == true) return;
+        
         if (!context.performed) return;
 
         switch (stateManager.interact)
