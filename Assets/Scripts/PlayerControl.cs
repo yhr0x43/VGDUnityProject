@@ -70,6 +70,9 @@ public class PlayerControl : MonoBehaviour
 
     void LateUpdate()
     {
+        // adjust the camera direction using the right analog stick
+        cameralFocal.transform.Rotate(Vector3.up * lookDirection.x * turnSpeed * Time.deltaTime);
+
         // for getting input from the controller, see OnMove and OnLook method of this class, they update
         // class members moveDirection and lookDirection as a callback of Player Input component
         // These two Vector2 should be input of the sticks where x component is horizontal and y is vertical, values between -1 and 1
@@ -81,9 +84,6 @@ public class PlayerControl : MonoBehaviour
         {
             case PlayerState.Freemove:
                 {   
-                    // adjust the camera direction using the right analog stick
-                    cameralFocal.transform.Rotate(Vector3.up * lookDirection.x * turnSpeed * Time.deltaTime);
-
                     // move the player forward
                     movement.x = alignedMovement.x;
                     movement.z = alignedMovement.y;
@@ -135,7 +135,6 @@ public class PlayerControl : MonoBehaviour
             case PlayerState.LedgeWalk:
                 {
                     // An invisible wall is used to prevent the player from falling off ledge, relevant code found in PlayerStateManager
-                    cameralFocal.transform.Rotate(Vector3.up * lookDirection.x * turnSpeed * Time.deltaTime);
                     alignedMovement *= ledgeSpeedMultiplier;
                     movement.x = alignedMovement.x;
                     movement.z = alignedMovement.y;
@@ -202,8 +201,8 @@ public class PlayerControl : MonoBehaviour
                 {
                     stateManager.state = PlayerState.Freemove;
                     lineIndexes = null;
-                    controller.enabled = true;
                     yVelocity = jumpDistance;
+                    jumpCounter = 1;
                     break;
                 }
             default:
@@ -260,6 +259,7 @@ public class PlayerControl : MonoBehaviour
                     stateManager.state = PlayerState.Freemove;
                     lineIndexes = null;
                     controller.enabled = true;
+                    jumpCounter = 1;
                     break;
                 }
         }
