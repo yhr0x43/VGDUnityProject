@@ -288,6 +288,10 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: b62e57b7-7549-4684-8dcb-744a3e43f267
     m_ActionName: Player/Interact[/XInputControllerWindows/buttonWest]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 4f27aaab-313c-42a1-ac1a-e264c200729f
+    m_ActionName: Player/Pause[/XInputControllerWindows/start]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -305,7 +309,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb9c74cf9c1de7e49a96abd38228785a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 10
+  moveSpeed: 6.5
   turnSpeed: 90
   ropeWalkSpeedMultiplier: 0.4
   airSpeedMultiplier: 0.5
@@ -340,6 +344,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 265b09670bdc542f2b4b3efcd52125bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isGamePaused: 0
+  pauseMenu: {fileID: 0}
+  quitButton: {fileID: 0}
 --- !u!4 &6878892799552105646 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 5d1612e9e9565494cb64ab64e933fbd2, type: 3}
