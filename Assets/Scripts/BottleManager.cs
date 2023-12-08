@@ -55,7 +55,7 @@ public class BottleManager : MonoBehaviour
 
     IEnumerator RestartEverything()
     {
-        AsyncOperation loadLevel = SceneManager.LoadSceneAsync("Start Menu");
+        AsyncOperation loadLevel = SceneManager.LoadSceneAsync("StartMenu");
 
         while(!loadLevel.isDone)
         {
