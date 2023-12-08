@@ -1,15 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Game : MonoBehaviour
 {
-    private static bool isGamePaused;
+    private bool isGamePaused;
+
+    public GameObject pauseMenu;
+    public Button quitButton;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        quitButton.onClick.AddListener(QuitGame);
     }
 
     // Update is called once per frame
@@ -21,28 +25,38 @@ public class Game : MonoBehaviour
         }
     }
 
-    public static void PauseToggle()
+    public void PauseToggle()
     {
         isGamePaused = !isGamePaused;
         if (isGamePaused)
         {
             Time.timeScale = 0f;
+            pauseMenu.SetActive(true);
         }
         else
         {
             Time.timeScale = 1;
+            pauseMenu.SetActive(false);
         }
     }
 
-    public static void Pause()
+    void QuitGame()
+    {
+        Application.Quit();
+    }
+    /*
+    public void Pause()
     {
         isGamePaused = true;
+        pauseMenu.SetActive(true);
         Time.timeScale = 0f;
     }
 
-    public static void Unpause()
+    public void Unpause()
     {
         isGamePaused = false;
+        pauseMenu.SetActive(false);
         Time.timeScale = 1f;
     }
+    */
 }
