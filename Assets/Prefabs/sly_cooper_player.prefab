@@ -314,8 +314,8 @@ MonoBehaviour:
   ropeWalkSpeedMultiplier: 0.4
   airSpeedMultiplier: 0.5
   ledgeSpeedMultiplier: 0.5
-  jumpDistance: 100
-  gravity: 9.81
+  jumpDistance: 8
+  gravity: 15
   numBottles: 0
   cameralFocal: {fileID: 7999959550418150501}
   virtualCamera: {fileID: 0}
@@ -347,6 +347,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isGamePaused: 0
   pauseMenu: {fileID: 0}
+  winCondition: {fileID: 0}
   quitButton: {fileID: 0}
 --- !u!4 &6878892799552105646 stripped
 Transform:
