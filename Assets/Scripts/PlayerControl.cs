@@ -66,7 +66,7 @@ public class PlayerControl : MonoBehaviour
         anim = GetComponent<Animator>();
     }
 
-    void Update()
+    void LateUpdate()
     {
         // for getting input from the controller, see OnMove and OnLook method of this class, they update
         // class members moveDirection and lookDirection as a callback of Player Input component
@@ -254,6 +254,7 @@ public class PlayerControl : MonoBehaviour
                 }
         }
     }
+
     private void OnTriggerEnter(Collider other)
     {
         if(other == GameObject.Find("Death box"))
