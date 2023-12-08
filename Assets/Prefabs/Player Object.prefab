@@ -641,7 +641,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 444273788389095184}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.50731564, y: 0.32655907, z: 244.79274}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -6829,6 +6829,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: b62e57b7-7549-4684-8dcb-744a3e43f267
     m_ActionName: Player/Interact[/XInputControllerWindows/buttonWest]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 547379136552204413}
+        m_TargetAssemblyTypeName: PauseGame, Assembly-CSharp
+        m_MethodName: PauseToggle
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 4f27aaab-313c-42a1-ac1a-e264c200729f
+    m_ActionName: Player/Pause[/XInputControllerWindows1/start]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -6881,6 +6897,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 265b09670bdc542f2b4b3efcd52125bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isGamePaused: 0
   pauseMenu: {fileID: 107365004019059441}
   quitButton: {fileID: 5146909733094638147}
 --- !u!1 &7632255050100992051
