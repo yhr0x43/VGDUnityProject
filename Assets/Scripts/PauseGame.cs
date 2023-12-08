@@ -16,15 +16,6 @@ public class PauseGame : MonoBehaviour
         quitButton.onClick.AddListener(QuitGame);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.JoystickButton7) || Input.GetKeyDown(KeyCode.Escape))
-        {
-            PauseToggle();
-        }
-    }
-
     public void PauseToggle()
     {
         isGamePaused = !isGamePaused;
