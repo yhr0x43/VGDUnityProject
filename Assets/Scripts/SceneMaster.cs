@@ -23,6 +23,11 @@ public class SceneMaster : MonoBehaviour
         {
             StartCoroutine(LoadMountainLevel());
         }
+
+        if(other.gameObject == GameObject.FindWithTag("Player") && SceneManager.GetActiveScene().name == "MountainLevel")
+        {
+            StartCoroutine(LoadPortCityLevel());
+        }
     }
 
     IEnumerator LoadMountainLevel()
