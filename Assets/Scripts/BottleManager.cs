@@ -43,14 +43,14 @@ public class BottleManager : MonoBehaviour
         }
     }
 
-    void RestartGame()
-    {
-        RestartEverything();
-    }
-
     void QuitGame()
     {
         Application.Quit();
+    }
+
+    void RestartGame()
+    {
+        StartCoroutine(RestartEverything());
     }
 
     IEnumerator RestartEverything()
