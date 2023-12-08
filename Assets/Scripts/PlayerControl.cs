@@ -12,7 +12,7 @@ public class PlayerControl : MonoBehaviour
     public float airSpeedMultiplier = 0.5f;
     public float ledgeSpeedMultiplier = 0.5f;
     // FIXME jumpDistance is not working as intended
-    public float jumpDistance = 2f;
+    public float jumpDistance = 8f;
     public float gravity = 9.8f;
 
     int jumpCounter = 1;
