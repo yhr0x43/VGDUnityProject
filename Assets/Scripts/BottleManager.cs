@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class BottleManager : MonoBehaviour
 {
-    private int numBottles;
+    private PlayerControl bottleCount;
     private PauseGame pauseGame;
 
     public GameObject victoryScreen;
@@ -16,18 +16,16 @@ public class BottleManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        numBottles = 0;  
         restartButton.onClick.AddListener(RestartGame); 
         quitButton.onClick.AddListener(QuitGame); 
         pauseGame = GetComponent<PauseGame>();
+        bottleCount = GetComponent<PlayerControl>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        transform.Rotate(0, 60 * Time.deltaTime, 0);
-
-        if(numBottles == 8)
+        if(bottleCount.numBottles == 8)
         {
             victoryScreen.SetActive(true);
             Time.timeScale = 0f;
@@ -37,9 +35,11 @@ public class BottleManager : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject == GameObject.FindWithTag("Player"))
+        if(other.gameObject.tag == "Bottle")
         {
-            numBottles++;
+            Destroy(other.gameObject);
+            bottleCount.numBottles++;
+            Debug.Log(bottleCount.numBottles);
         }
     }
 

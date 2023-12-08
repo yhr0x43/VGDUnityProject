@@ -8,16 +8,20 @@ public class PauseGame : MonoBehaviour
     public bool isGamePaused;
 
     public GameObject pauseMenu;
+    public PlayerControl winCondition;
     public Button quitButton;
 
     // Start is called before the first frame update
     void Start()
     {
         quitButton.onClick.AddListener(QuitGame);
+        winCondition = GetComponent<PlayerControl>();
     }
 
     public void PauseToggle()
     {
+        if(winCondition.numBottles == 8) return;
+        
         isGamePaused = !isGamePaused;
         if (isGamePaused)
         {

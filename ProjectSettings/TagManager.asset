@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Rope
   - Ledge
+  - Bottle
   layers:
   - Default
   - TransparentFX

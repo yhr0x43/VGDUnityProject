@@ -314,8 +314,9 @@ MonoBehaviour:
   ropeWalkSpeedMultiplier: 0.4
   airSpeedMultiplier: 0.5
   ledgeSpeedMultiplier: 0.5
-  jumpDistance: 0.4
-  gravity: 0.75
+  jumpDistance: 100
+  gravity: 9.81
+  numBottles: 0
   cameralFocal: {fileID: 7999959550418150501}
   virtualCamera: {fileID: 0}
 --- !u!114 &5001964070551490609

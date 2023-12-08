@@ -14,6 +14,7 @@ public class PlayerControl : MonoBehaviour
     // FIXME jumpDistance is not working as intended
     public float jumpDistance = 8f;
     public float gravity = 9.8f;
+    public int numBottles = 0;
 
     int jumpCounter = 1;
 
