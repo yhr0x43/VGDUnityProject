@@ -12,8 +12,8 @@ public class PlayerControl : MonoBehaviour
     public float airSpeedMultiplier = 0.5f;
     public float ledgeSpeedMultiplier = 0.5f;
     // FIXME jumpDistance is not working as intended
-    public float jumpDistance = 0.04f;
-    public float gravity = 0.08f;
+    public float jumpDistance = 2f;
+    public float gravity = 9.8f;
 
     int jumpCounter = 1;
 
@@ -74,7 +74,7 @@ public class PlayerControl : MonoBehaviour
         // These two Vector2 should be input of the sticks where x component is horizontal and y is vertical, values between -1 and 1
         movement = Vector3.zero;
         float cameraYaw = -cameralFocal.transform.eulerAngles.y * Mathf.PI / 180;
-        Vector2 alignedMovement = Rotate(moveDirection, cameraYaw) * Time.deltaTime * moveSpeed;
+        Vector2 alignedMovement = Rotate(moveDirection, cameraYaw) * moveSpeed;
 
         switch (stateManager.state)
         {
@@ -147,14 +147,14 @@ public class PlayerControl : MonoBehaviour
         }
         if (stateManager.state != PlayerState.Ropewalk)
         {
-            if (!controller.isGrounded)
+            if (controller.isGrounded)
             {
-                yVelocity -= gravity * Time.deltaTime;
-                movement *= airSpeedMultiplier;
+                jumpCounter = 1;
             }
             else
             {
-                jumpCounter = 1;
+                yVelocity -= gravity * Time.deltaTime;
+                movement *= airSpeedMultiplier;
             }
             anim.SetBool("IsGrounded", controller.isGrounded);
             movement.y = yVelocity;
@@ -162,7 +162,7 @@ public class PlayerControl : MonoBehaviour
         
         if(pauseGame.isGamePaused == false)
         {
-            controller.Move(movement);
+            controller.Move(movement * Time.deltaTime);
         }
     }
 
