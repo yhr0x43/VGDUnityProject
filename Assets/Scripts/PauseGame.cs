@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PauseGame : MonoBehaviour
+public class Game : MonoBehaviour
 {
     private static bool isGamePaused;
 
@@ -15,7 +15,10 @@ public class PauseGame : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(Input.GetKeyDown(KeyCode.JoystickButton7) || Input.GetKeyDown(KeyCode.Escape))
+        {
+            PauseToggle();
+        }
     }
 
     public static void PauseToggle()
